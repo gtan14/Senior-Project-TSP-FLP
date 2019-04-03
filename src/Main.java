@@ -13,11 +13,14 @@ import java.util.function.Supplier;
 public class Main {
 
     private static Graph<String, DefaultWeightedEdge> completeGraph;
-    private static LinkedList<String> orders;
+    private static LinkedList<Order> orders;
 
     public static void main(String[] args) {
         orders = new LinkedList<>();
         initializeGraph(5);
+
+        TSP tsp = new TSP(completeGraph);
+        BaseLocation baseLocation = tsp.getBaseLocation(completeGraph.vertexSet());
     }
 
     //  method that initializes a complete weighted undirected graph
@@ -44,7 +47,6 @@ public class Main {
         // Use the CompleteGraphGenerator object to make completeGraph a
         // complete graph with [size] number of vertices
         completeGenerator.generateGraph(completeGraph);
-
         // Print out the graph to be sure it's really complete
         Iterator<String> iter = new DepthFirstIterator<>(completeGraph);
         while (iter.hasNext()) {
@@ -70,6 +72,11 @@ public class Main {
 
         //  generate random number
         int randomNumber = ThreadLocalRandom.current().nextInt(0, nodes.size());
-        orders.add(nodesList.get(randomNumber));
+
+        //  create new order
+        Order order = new Order();
+        order.setNode(nodesList.get(randomNumber));
+
+        orders.add(order);
     }
 }
