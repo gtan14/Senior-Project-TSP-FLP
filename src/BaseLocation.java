@@ -6,9 +6,15 @@ public class BaseLocation{
 
     }
 
+    public BaseLocation(String first, String second, String third) {
+        this.first = first;
+        this.second = second;
+        this.third = third;
+    }
+
     /*
-    Getter and Setters
-     */
+        Getter and Setters
+         */
     public String getFirst() {
         return first;
     }
