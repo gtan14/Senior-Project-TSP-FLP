@@ -21,29 +21,17 @@ public class TSP {
 
         Comparator<Heuristic> comparator = new Comparator<Heuristic>() {
             public int compare(Heuristic h1, Heuristic h2) {
+                //System.out.println("H1 Cost: " + h1.getCost());
+                //System.out.println("H2 Cost: " + h2.getCost());
                 return Double.compare(h1.getCost(), (h2.getCost()));
             }
         };
 
-        //  iterate through all possible starting positions for 2 trucks
-        for(int i = 0; i < arrayVertices.length; i++){
-            String firstTruckPosition = arrayVertices[i];
+        getTopHeuristics(arrayVertices, comparator);
 
-            for(int j = 0; j < arrayVertices.length; j++){
-                //  evaluate if both facilities are not at same location
-                if(i != j){
-                    String secondTruckPosition = arrayVertices[j];
 
-                    //  make a nodes visited list
-                    unvisitedNodes = new ArrayList<>(Arrays.asList(arrayVertices));
-
-                    //  update heuristic list with best heuristics and facility positions
-                    //  evaluate facilities with both facilities in different order
-                    //  different ordering may result in different heuristic
-                    evaluateHeuristic(firstTruckPosition, secondTruckPosition, comparator);
-                    evaluateHeuristic(secondTruckPosition, firstTruckPosition, comparator);
-                }
-            }
+        while(topHeuristics.size() < 3){
+            getTopHeuristics(arrayVertices, comparator);
         }
 
         BaseLocation firstBaseLocation = new BaseLocation();
@@ -74,6 +62,29 @@ public class TSP {
         return baseLocationMap;
     }
 
+    private void getTopHeuristics(String[] arrayVertices, Comparator<Heuristic> comparator){
+        //  iterate through all possible starting positions for 2 trucks
+        for(int i = 0; i < arrayVertices.length; i++){
+            String firstTruckPosition = arrayVertices[i];
+
+            for(int j = 0; j < arrayVertices.length; j++){
+                //  evaluate if both facilities are not at same location
+                if(i != j){
+                    String secondTruckPosition = arrayVertices[j];
+
+                    //  make a nodes visited list
+                    unvisitedNodes = new ArrayList<>(Arrays.asList(arrayVertices));
+
+                    //  update heuristic list with best heuristics and facility positions
+                    //  evaluate facilities with both facilities in different order
+                    //  different ordering may result in different heuristic
+                    evaluateHeuristic(firstTruckPosition, secondTruckPosition, comparator);
+                    //evaluateHeuristic(secondTruckPosition, firstTruckPosition, comparator);
+                }
+            }
+        }
+    }
+
     private void evaluateHeuristic(String firstTruckPosition, String secondTruckPosition, Comparator<Heuristic> comparator){
         double cost = runTSP(firstTruckPosition, secondTruckPosition);
 
@@ -90,18 +101,25 @@ public class TSP {
         //  get index to be inserted at
         int index = Collections.binarySearch(topHeuristics, heuristic, comparator);
 
+        //System.out.println("COST: " + cost);
         //  heuristic was found with same cost
         //  insert into index it was found
-        if(index > 0){
+        if(index >= 0){
+            //System.out.println("Index: " + index);
             topHeuristics.add(index, heuristic);
         }
 
         //  heuristic was not found with same cost
         //  index returned is a negative number
         else{
+            int adjustedIndex = (index * -1) - 1;
+            //System.out.println("Index: " + adjustedIndex);
+            //System.out.println("Top: " + topHeuristics.size());
             //  heuristic should be added to list
-            if(index >= (topHeuristics.size() * -1)){
-                topHeuristics.add((index * -1), heuristic);
+            //System.out.println("Index: " + index);
+            //System.out.println("Adjusted Index: " + adjustedIndex);
+            if(adjustedIndex < topHeuristics.size() + 1){
+                topHeuristics.add(adjustedIndex, heuristic);
             }
         }
 
@@ -110,6 +128,33 @@ public class TSP {
             //  remove from end of list, since list is in ascending order of cost
             //  remove worst cost
             topHeuristics.remove(topHeuristics.size() - 1);
+        }
+
+        for(int i = 0; i < topHeuristics.size(); i++){
+            System.out.println("First: " + topHeuristics.get(i).firstFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
+            System.out.println("Second: " + topHeuristics.get(i).secondFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
+        }
+
+        System.out.println();
+
+
+        for(int i = topHeuristics.size() - 1; i >= 0; i--){
+            String firstTruck = topHeuristics.get(i).firstFacilityPosition;
+            String secondTruck = topHeuristics.get(i).secondFacilityPosition;
+
+            for(int j = i - 1; j >= 0; j--){
+                String firstTruckCompare = topHeuristics.get(j).firstFacilityPosition;
+                String secondTruckCompare = topHeuristics.get(j).secondFacilityPosition;
+
+                //  remove worst cost which would be at index i since the for loop is reversed
+                //  element is compared to element before it (better cost)
+                if(firstTruck.equals(firstTruckCompare) || secondTruck.equals(secondTruckCompare) ||
+                    firstTruck.equals(secondTruckCompare) || secondTruck.equals(firstTruckCompare)){
+                    topHeuristics.remove(i);
+                    //  this prevents index out of bounds exception since the outer loop index is used to remove from list
+                    break;
+                }
+            }
         }
     }
 
@@ -229,6 +274,7 @@ public class TSP {
             for(int j = 0; j < edgeVisited.size(); j++){
                 if(edgeVisited.get(j).toString().equals(edgesFromStart.get(i).toString())){
                     edgesFromStart.remove(i);
+                    break;
                 }
             }
         }
@@ -238,6 +284,7 @@ public class TSP {
             for(int j = 0; j < edgeVisited.size(); j++){
                 if(edgeVisited.get(j).toString().equals(edgesFromCurrent.get(i).toString())){
                     edgesFromCurrent.remove(i);
+                    break;
                 }
             }
         }

@@ -1,3 +1,8 @@
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.jgrapht.Graph;
 import org.jgrapht.generate.CompleteGraphGenerator;
 import org.jgrapht.graph.DefaultEdge;
@@ -6,6 +11,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.util.SupplierUtil;
 
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
@@ -17,10 +23,17 @@ public class Main {
 
     public static void main(String[] args) {
         orders = new LinkedList<>();
-        initializeGraph(5);
+        initializeGraph(22);
 
         TSP tsp = new TSP(completeGraph);
-        BaseLocation baseLocation = tsp.getBaseLocation(completeGraph.vertexSet());
+        Map<String, BaseLocation> baseLocationMap = tsp.getBaseLocation(completeGraph.vertexSet());
+        for(Map.Entry<String, BaseLocation> entry: baseLocationMap.entrySet()){
+            System.out.println("truck: " + entry.getKey());
+            BaseLocation baseLocation = entry.getValue();
+            System.out.println("1: " + baseLocation.getFirst());
+            System.out.println("2: " + baseLocation.getSecond());
+            System.out.println("3: " + baseLocation.getThird());
+        }
     }
 
     //  method that initializes a complete weighted undirected graph
@@ -29,14 +42,19 @@ public class Main {
         // Create the VertexFactory so the generator can create vertices
         Supplier<String> vSupplier = new Supplier<String>()
         {
-            private int id = 0;
+            private int id = 1;
 
             @Override
             public String get()
             {
-                return "v" + id++;
+                return getCharForNumber(id++);
+            }
+
+            private String getCharForNumber(int i) {
+                return i > 0 && i < 27 ? String.valueOf((char)(i + 'A' - 1)) : null;
             }
         };
+
 
         completeGraph = new DefaultUndirectedWeightedGraph<>(vSupplier, SupplierUtil.createDefaultWeightedEdgeSupplier());
 
@@ -79,4 +97,6 @@ public class Main {
 
         orders.add(order);
     }
+
+
 }
