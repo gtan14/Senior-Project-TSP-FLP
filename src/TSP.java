@@ -106,7 +106,10 @@ public class TSP {
         //  insert into index it was found
         if(index >= 0){
             //System.out.println("Index: " + index);
-            topHeuristics.add(index, heuristic);
+            /*
+            if(!duplicateFacilityPosition(index, heuristic)) {
+                topHeuristics.add(index, heuristic);
+            }*/
         }
 
         //  heuristic was not found with same cost
@@ -119,7 +122,9 @@ public class TSP {
             //System.out.println("Index: " + index);
             //System.out.println("Adjusted Index: " + adjustedIndex);
             if(adjustedIndex < topHeuristics.size() + 1){
-                topHeuristics.add(adjustedIndex, heuristic);
+                if(!duplicateFacilityPosition(adjustedIndex, heuristic)) {
+                    topHeuristics.add(adjustedIndex, heuristic);
+                }
             }
         }
 
@@ -130,14 +135,14 @@ public class TSP {
             topHeuristics.remove(topHeuristics.size() - 1);
         }
 
-
         /*
         for(int i = 0; i < topHeuristics.size(); i++){
-            System.out.println("First: " + topHeuristics.get(i).firstFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
-            System.out.println("Second: " + topHeuristics.get(i).secondFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
+            System.out.println("FirstEvaluate: " + topHeuristics.get(i).firstFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
+            System.out.println("SecondEvaluate: " + topHeuristics.get(i).secondFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
         }
 
         System.out.println();*/
+
 
 
         for(int i = topHeuristics.size() - 1; i >= 0; i--){
@@ -158,6 +163,21 @@ public class TSP {
                 }
             }
         }
+    }
+
+    //  this method prevents heuristics being added to top heuristic list if it's worse and if one of the facility locations already exists in top heuristic list
+    //  this ensures that heuristics being added contain unique facility locations
+    private boolean duplicateFacilityPosition(int index, Heuristic heuristic){
+        //System.out.println("INDEX: " + index);
+        for(int i = 0; i < index; i++){
+            Heuristic topHeuristic = topHeuristics.get(i);
+            if(topHeuristic.getFirstFacilityPosition().equals(heuristic.getFirstFacilityPosition()) || topHeuristic.getFirstFacilityPosition().equals(heuristic.getSecondFacilityPosition()) ||
+            topHeuristic.getSecondFacilityPosition().equals(heuristic.getFirstFacilityPosition()) || topHeuristic.getSecondFacilityPosition().equals(heuristic.getSecondFacilityPosition())){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private double runTSP(String firstTruckPosition, String secondTruckPosition){

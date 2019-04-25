@@ -50,14 +50,24 @@ public class Main {
             BaseLocation baseLocation = entry.getValue();
             if(entry.getKey().equals("first")){
                 firstFacilityLocation = baseLocation.getFirst();
+
+                System.out.println("FIRST FACILITY: " + baseLocation.getFirst());
+                System.out.println("FIRST FACILITY: " + baseLocation.getSecond());
+                System.out.println("FIRST FACILITY: " + baseLocation.getThird());
             }
 
             else if(entry.getKey().equals("second")){
                 secondFacilityLocation = baseLocation.getSecond();
+
+                System.out.println("SECOND FACILITY: " + baseLocation.getFirst());
+                System.out.println("SECOND FACILITY: " + baseLocation.getSecond());
+                System.out.println("SECOND FACILITY: " + baseLocation.getThird());
             }
 
+            System.out.println();
         }
 
+        System.out.println();
 
         orderGenerator = new OrderGenerator();
 
@@ -75,17 +85,23 @@ public class Main {
         FLP flp = new FLP(completeGraph);
         OrderFunction orderFunction = new OrderFunction(completeGraph);
 
+        System.out.println("START");
         while(orders.size() > 0){
+            System.out.println("ORDER SIZE: " + orders.size());
             promptEnterKey();
+
             if(firstFacilityTurn){
                 //  first facility movement
                 flp.setFirstFacilityTurn();
                 FLPResult flpResult = flp.GetNextBestMove(firstFacilityLocation, secondFacilityLocation);
+                System.out.println("BEFORE CALCULATE");
                 Pair<SphereOfInfluence, SphereOfInfluence> sphereOfInfluencePair = flp.CalculateSphereOfInfluence(firstFacilityLocation, secondFacilityLocation);
+                System.out.println("AFTER CALCULATE");
                 orderFunction.setSphereOfInfluence(sphereOfInfluencePair.getKey());
                 orderFunction.setOrders(orders);
                 OrderFunctionResult orderFunctionResult = orderFunction.GetNextMove(secondFacilityLocation);
 
+                System.out.println("COST");
                 double flpCost = flpResult.getCost() * flpCoefficient;
                 double orderCost = orderFunctionResult.getCost() * orderFunctionCoefficient;
                 String facilityLocationBeforeMove = firstFacilityLocation;
@@ -110,6 +126,7 @@ public class Main {
                     firstFacilityLocation = orderFunctionResult.getDestinationNode();
                 }
 
+                System.out.println("MARK");
                 MarkOrdersAsServiced(firstFacilityLocation);
                 SendRobots(orderFunctionResult, facilityLocationBeforeMove);
 
@@ -170,18 +187,20 @@ public class Main {
     }
 
     public static void SendRobots(OrderFunctionResult orderFunctionResult, String facilityLocation){
-        for(int i = 0; i < orders.size(); i++){
-            for(int j = 0; j < orderFunctionResult.getOrdersInInfluence().size(); j++){
+        for(int i = orders.size() - 1; i >= 0; i--){
+            for(int j = orderFunctionResult.getOrdersInInfluence().size() - 1; j >= 0; j--){
                 if(orders.get(i).getNode().equals(orderFunctionResult.getOrdersInInfluence().get(j))){
                     orders.get(i).setServiced(true);
                     orders.get(i).robotSent(new DijkstraShortestPath<>(completeGraph).getPathWeight(orders.get(i).getNode(), facilityLocation));
+                    orders.remove(i);
+                    break;
                 }
             }
         }
     }
 
     public static void MarkOrdersAsServiced(String facilityLocation){
-        for(int i = 0; i < orders.size(); i++){
+        for(int i = orders.size() - 1; i >= 0; i--){
             if(orders.get(i).getNode().equals(facilityLocation)){
                 orders.get(i).setServiced(true);
             }
@@ -246,7 +265,7 @@ public class Main {
         Order order = new Order();
         order.setNode(nodesList.get(randomNumber));
 
-        orders.add(order);
+        orders.add(orders.size(), order);
         //System.out.println("GENERATE");
         numOrdersCap++;
     }
@@ -258,8 +277,8 @@ public class Main {
         private boolean ordersComplete = false;
 
         public void run() {
-                int delay = (1 + new Random().nextInt(4)) * 1000;
-                timer.schedule(new OrderGenerator(), delay);
+                //int delay = (1 + new Random().nextInt(4)) * 1000;
+                timer.schedule(new OrderGenerator(), 500);
                 generateOrder();
                 this.cancel();
         }
