@@ -130,12 +130,14 @@ public class TSP {
             topHeuristics.remove(topHeuristics.size() - 1);
         }
 
+
+        /*
         for(int i = 0; i < topHeuristics.size(); i++){
             System.out.println("First: " + topHeuristics.get(i).firstFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
             System.out.println("Second: " + topHeuristics.get(i).secondFacilityPosition + " ; Cost: " + topHeuristics.get(i).getCost());
         }
 
-        System.out.println();
+        System.out.println();*/
 
 
         for(int i = topHeuristics.size() - 1; i >= 0; i--){
