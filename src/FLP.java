@@ -33,7 +33,6 @@ public class FLP {
         if(firstFacilityTurn){
             List<DefaultWeightedEdge> edgesFromFirstFacility = new ArrayList<>(completeGraph.edgesOf(firstFacilityPos));
 
-
             //  loop through all edges from first facility and remove the edge that is connected to second facility
             for(int i = edgesFromFirstFacility.size() - 1; i >= 0; i--){
                 if(completeGraph.getEdgeSource(edgesFromFirstFacility.get(i)).equals(secondFacilityPos) ||

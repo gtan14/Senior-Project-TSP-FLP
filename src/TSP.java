@@ -79,7 +79,7 @@ public class TSP {
                     //  evaluate facilities with both facilities in different order
                     //  different ordering may result in different heuristic
                     evaluateHeuristic(firstTruckPosition, secondTruckPosition, comparator);
-                    //evaluateHeuristic(secondTruckPosition, firstTruckPosition, comparator);
+                    evaluateHeuristic(secondTruckPosition, firstTruckPosition, comparator);
                 }
             }
         }

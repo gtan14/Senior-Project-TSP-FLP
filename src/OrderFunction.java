@@ -68,7 +68,7 @@ public class OrderFunction {
 
         //  add the cost to travel to new facility location
         DefaultWeightedEdge defaultWeightedEdge = completeGraph.getEdge(newFacilityPosition, currentFacilityPosition);
-        cost += completeGraph.getEdgeWeight(defaultWeightedEdge);
+        cost += Main.completeTruckGraph.getEdgeWeight(defaultWeightedEdge);
 
         return cost;
     }

@@ -12,18 +12,18 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.util.SupplierUtil;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.apache.commons.lang3.*;
 
 public class Main {
 
     private static Graph<String, DefaultWeightedEdge> completeGraph;
+    public static Graph<String, DefaultWeightedEdge> completeTruckGraph;
     public static volatile CopyOnWriteArrayList<Order> orders;
     public static double flpCoefficient, orderFunctionCoefficient;
     public static int numOrdersCap;
@@ -33,6 +33,10 @@ public class Main {
     public static void main(String[] args) {
         orders = new CopyOnWriteArrayList<>();
         initializeGraph(22);
+
+        /*
+        TODO: CREATE GUI WITH GRAPH OVERLAY
+         */
 
         numOrdersCap = 0;
         flpCoefficient = 1;
@@ -54,14 +58,30 @@ public class Main {
                 System.out.println("FIRST FACILITY: " + baseLocation.getFirst());
                 System.out.println("FIRST FACILITY: " + baseLocation.getSecond());
                 System.out.println("FIRST FACILITY: " + baseLocation.getThird());
+
+                completeTruckGraph.setEdgeWeight(baseLocation.getFirst(), baseLocation.getSecond(), 1.0);
+                completeTruckGraph.setEdgeWeight(baseLocation.getFirst(), baseLocation.getThird(), 1.0);
+                completeTruckGraph.setEdgeWeight(baseLocation.getSecond(), baseLocation.getThird(), 1.0);
+
+                /*
+                TODO: MARK BASE LOCATIONS FOR FIRST FACILITY
+                 */
             }
 
             else if(entry.getKey().equals("second")){
-                secondFacilityLocation = baseLocation.getSecond();
+                secondFacilityLocation = baseLocation.getFirst();
 
                 System.out.println("SECOND FACILITY: " + baseLocation.getFirst());
                 System.out.println("SECOND FACILITY: " + baseLocation.getSecond());
                 System.out.println("SECOND FACILITY: " + baseLocation.getThird());
+
+                completeTruckGraph.setEdgeWeight(baseLocation.getFirst(), baseLocation.getSecond(), 1.0);
+                completeTruckGraph.setEdgeWeight(baseLocation.getFirst(), baseLocation.getThird(), 1.0);
+                completeTruckGraph.setEdgeWeight(baseLocation.getSecond(), baseLocation.getThird(), 1.0);
+
+                /*
+                TODO: MARK BASE LOCATIONS FOR SECOND FACILITY
+                 */
             }
 
             System.out.println();
@@ -82,26 +102,22 @@ public class Main {
             Thread.currentThread().interrupt();
         }
 
-        FLP flp = new FLP(completeGraph);
+        FLP flp = new FLP(completeTruckGraph);
         OrderFunction orderFunction = new OrderFunction(completeGraph);
 
-        System.out.println("START");
         while(orders.size() > 0){
-            System.out.println("ORDER SIZE: " + orders.size());
             promptEnterKey();
 
             if(firstFacilityTurn){
+                System.out.println("ORDER SIZE: " + orders.size());
                 //  first facility movement
                 flp.setFirstFacilityTurn();
                 FLPResult flpResult = flp.GetNextBestMove(firstFacilityLocation, secondFacilityLocation);
-                System.out.println("BEFORE CALCULATE");
                 Pair<SphereOfInfluence, SphereOfInfluence> sphereOfInfluencePair = flp.CalculateSphereOfInfluence(firstFacilityLocation, secondFacilityLocation);
-                System.out.println("AFTER CALCULATE");
                 orderFunction.setSphereOfInfluence(sphereOfInfluencePair.getKey());
                 orderFunction.setOrders(orders);
                 OrderFunctionResult orderFunctionResult = orderFunction.GetNextMove(secondFacilityLocation);
 
-                System.out.println("COST");
                 double flpCost = flpResult.getCost() * flpCoefficient;
                 double orderCost = orderFunctionResult.getCost() * orderFunctionCoefficient;
                 String facilityLocationBeforeMove = firstFacilityLocation;
@@ -126,7 +142,6 @@ public class Main {
                     firstFacilityLocation = orderFunctionResult.getDestinationNode();
                 }
 
-                System.out.println("MARK");
                 MarkOrdersAsServiced(firstFacilityLocation);
                 SendRobots(orderFunctionResult, facilityLocationBeforeMove);
 
@@ -135,9 +150,17 @@ public class Main {
                 System.out.println("First Facility Turn");
                 System.out.println("Before: " + facilityLocationBeforeMove);
                 System.out.println("After: " + firstFacilityLocation);
+
+                /*
+                TODO: THIS IS THE FIRST FACILITY MOVEMENT
+                TODO: facilityLocationBeforeMove IS THE NODE FACILITY WAS AT BEFORE MOVING
+                TODO: firstFacilityLocation IS THE NODE FACILITY MOVES TO
+                 */
             }
 
             else{
+                System.out.println("ORDER SIZE: " + orders.size());
+
                 flp.setSecondFacilityTurn();
                 FLPResult flpResult = flp.GetNextBestMove(firstFacilityLocation, secondFacilityLocation);
                 //  flip parameter order and have second facility in first parameter
@@ -181,6 +204,12 @@ public class Main {
                 System.out.println("Second Facility Turn");
                 System.out.println("Before: " + facilityLocationBeforeMove);
                 System.out.println("After: " + secondFacilityLocation);
+
+                /*
+                TODO: THIS IS THE SECOND FACILITY MOVEMENT
+                TODO: facilityLocationBeforeMove IS THE NODE FACILITY WAS AT BEFORE MOVING
+                TODO: secondFacilityLocation IS THE NODE FACILITY MOVES TO
+                 */
             }
         }
 
@@ -193,10 +222,15 @@ public class Main {
                     orders.get(i).setServiced(true);
                     orders.get(i).robotSent(new DijkstraShortestPath<>(completeGraph).getPathWeight(orders.get(i).getNode(), facilityLocation));
                     orders.remove(i);
+                    /*
+                    TODO: orders.get(i).getNode() IS THE ORDER THAT IS BEING TAKEN CARE OF BY THE ROBOT
+                     */
                     break;
                 }
             }
         }
+
+        System.out.println("ORDERS SIZE AFTER: " + orders.size());
     }
 
     public static void MarkOrdersAsServiced(String facilityLocation){
@@ -229,6 +263,23 @@ public class Main {
 
         completeGraph = new DefaultUndirectedWeightedGraph<>(vSupplier, SupplierUtil.createDefaultWeightedEdgeSupplier());
 
+        vSupplier = new Supplier<String>()
+        {
+            private int id = 1;
+
+            @Override
+            public String get()
+            {
+                return getCharForNumber(id++);
+            }
+
+            private String getCharForNumber(int i) {
+                return i > 0 && i < 27 ? String.valueOf((char)(i + 'A' - 1)) : null;
+            }
+        };
+
+        completeTruckGraph = new DefaultUndirectedWeightedGraph<>(vSupplier, SupplierUtil.createDefaultWeightedEdgeSupplier());
+
         // Create the CompleteGraphGenerator object
         CompleteGraphGenerator<String, DefaultWeightedEdge> completeGenerator =
                 new CompleteGraphGenerator<>(numOfNodes);
@@ -236,6 +287,7 @@ public class Main {
         // Use the CompleteGraphGenerator object to make completeGraph a
         // complete graph with [size] number of vertices
         completeGenerator.generateGraph(completeGraph);
+        completeGenerator.generateGraph(completeTruckGraph);
 
         try {
             Scanner scanner = new Scanner(new File("NodeTextList.txt"));
@@ -243,6 +295,7 @@ public class Main {
                 String line = scanner.nextLine();
                 String[] lineArray = line.split(",");
                 completeGraph.setEdgeWeight(lineArray[0], lineArray[1], Double.parseDouble(lineArray[2]));
+                completeTruckGraph.setEdgeWeight(lineArray[0], lineArray[1], Double.parseDouble(lineArray[2]));
             }
         }
 
@@ -250,6 +303,7 @@ public class Main {
             e.printStackTrace();
         }
     }
+
 
     //  method that generates "orders" at random vertices
     private static void generateOrder(){
@@ -268,6 +322,10 @@ public class Main {
         orders.add(orders.size(), order);
         //System.out.println("GENERATE");
         numOrdersCap++;
+
+        /*
+        TODO: MARK NODE WITH ORDER
+         */
     }
 
     //  timer that generates orders every random seconds to replicate real life
