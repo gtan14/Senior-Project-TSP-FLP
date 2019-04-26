@@ -143,7 +143,7 @@ public class Main {
                 }
 
                 MarkOrdersAsServiced(firstFacilityLocation);
-                SendRobots(orderFunctionResult, facilityLocationBeforeMove);
+                SendRobots(orderFunctionResult, firstFacilityLocation);
 
                 firstFacilityTurn = false;
 
@@ -197,7 +197,7 @@ public class Main {
                 }
 
                 MarkOrdersAsServiced(secondFacilityLocation);
-                SendRobots(orderFunctionResult, facilityLocationBeforeMove);
+                SendRobots(orderFunctionResult, secondFacilityLocation);
 
                 firstFacilityTurn = true;
 

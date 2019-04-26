@@ -60,6 +60,7 @@ public class FLP {
             List<DefaultWeightedEdge> edgesFromSecondFacility = new ArrayList<>(completeGraph.edgesOf(secondFacilityPos));
 
             //  loop through all edges from first facility and remove the edge that is connected to second facility
+
             for(int i = edgesFromSecondFacility.size() - 1; i >= 0; i--){
                 if(completeGraph.getEdgeSource(edgesFromSecondFacility.get(i)).equals(firstFacilityPos) ||
                         completeGraph.getEdgeTarget(edgesFromSecondFacility.get(i)).equals(firstFacilityPos)){
