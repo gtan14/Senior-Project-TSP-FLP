@@ -95,6 +95,7 @@ public class UIRobot
 		else
 			return false;
 	}
+	/*
 	public void moveRobot() // moves the robot. Changes the values only
 	{
 		UINode tempNode;
@@ -135,5 +136,5 @@ public class UIRobot
 				isOrder2Filled(true);
 			}
 		}
-	}
+	}*/
 }

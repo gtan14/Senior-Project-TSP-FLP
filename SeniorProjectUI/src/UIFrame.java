@@ -9,14 +9,21 @@ import java.util.ArrayList;
 import java.util.Random;
 public class UIFrame extends JFrame
 {
-	private JPanel mainPanel, controlPanel, keyPanel;
+	private JPanel mainPanel, controlPanel;
 	private UICanvas mapPanel;
+	private ArrayList<UINode> mapPanelList = new ArrayList<>();
+	private boolean stillRun;
+	private Timer timer;
 	public UIFrame(UICanvas _mapCanvas)
-	{
-		createUIFrame(_mapCanvas);
+	{ 
+		stillRun = true;
+		mainPanel = new JPanel();
+		mapPanel = _mapCanvas;
+		mapPanelList = _mapCanvas.getNodeList();
+		createUIFrame();
 	}
 	
-	public void createUIFrame(UICanvas _mapPanel)
+	public void createUIFrame()
 	{
 		// Retrieve the top-level content-pane from JFrame
 	      mainPanel = new JPanel();
@@ -27,6 +34,14 @@ public class UIFrame extends JFrame
 	      
 	      controlPanel = new JPanel();
 	      
+	      
+	      if(stillRun = true)
+		  {
+			  runSimButton();
+			  mapPanel.repaint();
+		  }
+	      
+	      
 	 
 	      // Content-pane adds components
 	      controlPanel.add(new JLabel("Kennesaw State University Marietta Campus Simulation"));
@@ -35,13 +50,42 @@ public class UIFrame extends JFrame
 	      runBtn.addActionListener(new ActionListener() {
 	    	  public void actionPerformed(ActionEvent e)
 	    	  {
-	    		  runSimButton();
+	    		  if(runBtn.getText().equals("Run"))
+	    		  {
+	    			  timer.start();
+	    			  runBtn.setText("Stop");
+	    			  stillRun = false;
+	    			  
+	    		//	  runBtn.updateUI();
+	    		//	  runSimButton();
+	    		//	  repaint();
+	    		  }
+	    		  else if(runBtn.getText().equals("Stop"))
+	    		  {
+	    			  runBtn.setText("Run");
+	    			  stillRun = true;
+	    			  timer.stop();
+	    		  }	  
 	    	  }
 	      });
 	      
-	      mainPanel.add(controlPanel, BorderLayout.SOUTH);
+	      timer = new Timer(2, new ActionListener() {
+	            public void actionPerformed(ActionEvent e)
+	            {
+	            	if(stillRun = false)
+	            	{
+	            		
+	            	}
+	            	else if(stillRun = true)
+	            	{
+	            		runSimButton();
+		            	repaint();
+	            	}
+	            }
+	      });
+	      timer.start();
 	      
-	      mapPanel = _mapPanel;
+	      mainPanel.add(controlPanel, BorderLayout.SOUTH);
 	      mainPanel.add(mapPanel, BorderLayout.NORTH);
 	      
 	      
@@ -61,34 +105,63 @@ public class UIFrame extends JFrame
 	
 	
 	private void runSimButton() // TODO: Replace with TSP/FLP combo simulation
-	{
+	{		
+	//		mapPanel.moveEverything();
+			mapPanel.updateList(mapPanelList);
+			canvasPaint();
+	//	 
+		
+		//  Original Test Code
+		// Random Colors
+		// Code below
+			
+		/*
+		
 		System.out.println("The Button works!!!!");
-		ArrayList <UINode> tempList = mapPanel.getNodeList();
+		ArrayList <UINode> tempList = mapPanelList;
 		
 		Random rand = new Random();
 		int changeColor, colorNode;
 		for(int i = 0; i<5000000; i++)
 		{
 			changeColor = rand.nextInt(5)+1;
-			colorNode = rand.nextInt(tempList.size());
+			colorNode = rand.nextInt(mapPanelList.size());
 			if(changeColor == 1)
 				tempList.get(colorNode).setNodeColor(Color.RED);
-			if(changeColor == 2)
-				tempList.get(colorNode).setNodeColor(Color.BLUE);
 			if(changeColor == 3)
 				tempList.get(colorNode).setNodeColor(Color.YELLOW);
-			if(changeColor == 4)
-				tempList.get(colorNode).setNodeColor(Color.GREEN);
 			if(changeColor == 5)
 				tempList.get(colorNode).setNodeColor(Color.WHITE);
 			
 			mapPanel.setTruckALocation(tempList.get(colorNode).getNodeName());
 			mapPanel.setTruckAX(tempList.get(colorNode).getNodeX());
 			mapPanel.setTruckAY(tempList.get(colorNode).getNodeY());
+			
+			mapPanel.setTruckBLocation("B");
+			mapPanel.setTruckBX(420);
+			mapPanel.setTruckBY(350);
+			
 			mapPanel.moveEverything();
 			
 			canvasPaint();
-		}
+			
+		}  
+		*/
+	}
+	
+	public void updateNodeList(ArrayList<UINode> temp)
+	{
+		mapPanelList = temp;
+	}
+	
+	public ArrayList<UINode> getNodeList()
+	{
+		return mapPanelList;
+	}
+	
+	public void setRun(boolean setRunning)
+	{
+		stillRun = setRunning;
 	}
 	
 	public void canvasPaint()
