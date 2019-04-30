@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.SwingUtilities;
 public class UIMain 
-{
+{ /*
 	private static UICanvas campusPanel;
 	private static UIFrame mainUI;
 	private static ArrayList <UINode> nodeList;
@@ -33,14 +33,14 @@ public class UIMain
 		
 		System.out.println("It works");
 		
-		SwingUtilities.invokeLater(new Runnable() {
+	//	SwingUtilities.invokeLater(new Runnable() {
 
-            @Override
-            public void run() 
-            {
+      //      @Override
+        //    public void run() 
+          //  {
             	campusPanel = new UICanvas(nodeList);
             	mainUI = new UIFrame(campusPanel);
-            }
-		});
-	}
+            //}
+	//	});
+	}*/
 }

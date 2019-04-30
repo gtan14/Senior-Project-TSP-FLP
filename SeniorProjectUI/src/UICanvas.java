@@ -12,6 +12,7 @@ public class UICanvas extends JPanel
 	private ArrayList <UIRobot> roboList = new ArrayList<>();
 	int amount = 50;
 	int actual = 0;
+	private String timeStr;
 	public UICanvas(ArrayList <UINode> _theNodeList) // constructor
 	{
 		theNodeList = _theNodeList;
@@ -19,22 +20,22 @@ public class UICanvas extends JPanel
 		truckB = new UITruck(theNodeList);
 		
 		
-        Timer paintTimer = new Timer(2000, new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent evt) 
-            {
-                repaint();
-                actual ++;
-                if (actual >= amount) 
-                {
-                    Timer t = (Timer) evt.getSource();
-                    t.stop();
-                }
-            }
-        });
-        paintTimer.setRepeats(true);
-        paintTimer.start();
+   //     Timer paintTimer = new Timer(2000, new ActionListener()
+   //     {
+    //        @Override
+     //       public void actionPerformed(ActionEvent evt) 
+       //     {
+         //       repaint();
+         //       actual ++;
+           //     if (actual >= amount) 
+             //   {
+               //     Timer t = (Timer) evt.getSource();
+                 //   t.stop();
+              //  }
+ //           }
+ //       });
+   //     paintTimer.setRepeats(true);
+    //    paintTimer.start();
 	}
 	
 	public void setTruckALocation(String curNode) // Set the location of the truck
@@ -74,7 +75,7 @@ public class UICanvas extends JPanel
 	
 	public void setTruckBY(int _y) // Sets the Y coordinate of Truck B
 	{
-		truckB.setX(_y);
+		truckB.setY(_y);
 	}
 	
 	public void dispatchRobotA(String order1, String order2) // Creates new robot from Truck A with origin and two destinations
@@ -95,6 +96,11 @@ public class UICanvas extends JPanel
 		return theNodeList;
 	}
 	
+	public void updateList(ArrayList<UINode> tempList)
+	{
+		theNodeList = tempList;
+	}
+	/*
 	public void moveEverything() // calls the methods in Robot and trucks to move everything.
 	{
 		truckA.moveTruck();
@@ -107,6 +113,21 @@ public class UICanvas extends JPanel
 				roboList.get(i).moveRobot();
 		}
 		repaint();
+	}*/
+	
+	public void printTime(String ps)
+	{
+		timeStr = ps;
+	}
+	
+	public String getTruckADest()
+	{
+		return truckA.getDestTruck();
+	}
+	
+	public String getTruckBDest()
+	{
+		return truckB.getDestTruck();
 	}
 	
 	@Override
@@ -117,10 +138,12 @@ public class UICanvas extends JPanel
         setSize(800, 500);
         
         g.setColor(Color.WHITE); // Draws Color Key Box
-        g.fillRect(20, 240, 150, 140);
+        g.fillRect(20, 240, 150, 175);
         
         g.setColor(Color.BLACK); // WHITE ON ACTUAL UI Empty Node or Line
         g.drawRect(25, 250, 30, 15);
+        
+        g.drawString(timeStr, 55, 405);
         
         // Creates Key with colors and Strings
         
@@ -128,8 +151,9 @@ public class UICanvas extends JPanel
         g.drawString("Truck A", 61, 282);
         g.drawString("Truck B", 61, 302);
         g.drawString("Robot", 61, 322);
-        g.drawString("Base Node", 61, 342);
-        g.drawString("Service Request", 61, 362);
+        g.drawString("Base Node A", 61, 342);
+        g.drawString("Base Node B", 61, 362);
+        g.drawString("Order Request", 61, 382);
         
         g.setColor(Color.BLUE); // Truck A
         g.fillRect(25, 270, 30, 15);
@@ -140,61 +164,96 @@ public class UICanvas extends JPanel
         g.setColor(Color.GREEN); // Robots
         g.fillRect(25, 310, 30, 15);
         
-        g.setColor(Color.YELLOW); // Base Node
+        g.setColor(Color.YELLOW); // Base Node 1
         g.fillRect(25, 330, 30, 15);
         
-        g.setColor(Color.RED); // Node needs service
+        g.setColor(Color.CYAN); // Base node 2 
         g.fillRect(25, 350, 30, 15);
         
+        g.setColor(Color.RED); // Node needs service
+        g.fillRect(25, 370, 30, 15);
         
-        if(truckA.getCurrentNode() != truckA.getDestTruck()) // Draws graph line for Truck A
+        
+        if(truckA.getCurrentNode() != truckA.getDestTruck()) // Draws graph line for Truck B
         {
-        	int tempX, tempY;
+        	int tempX = 0; 
+        	int tempY = 0;
+        	int temp2X =0; 
+        	int temp2Y = 0;
         	for(int i = 0; i<theNodeList.size(); i++)
         	{
+        		if(truckA.getCurrentNode() == theNodeList.get(i).getNodeName())
+        		{
+        			temp2X = theNodeList.get(i).getNodeX();
+        			temp2Y = theNodeList.get(i).getNodeY();
+        		}
         		if(truckA.getDestTruck() == theNodeList.get(i).getNodeName())
         		{
         			tempX = theNodeList.get(i).getNodeX();
         			tempY = theNodeList.get(i).getNodeY();
-        			g.setColor(Color.WHITE);
-                	g.drawLine(truckA.getX(), truckA.getY(), tempX, tempY);
         		}
         	}
+        	g.setColor(Color.WHITE);
+			g.drawLine(temp2X, temp2Y, tempX, tempY);
         }
+        
+        
+        // Draws graph line for Truck B
         if(truckB.getCurrentNode() != truckB.getDestTruck()) // Draws graph line for Truck B
         {
-        	int tempX, tempY;
+        	int tempX = 0; 
+        	int tempY = 0;
+        	int temp2X =0; 
+        	int temp2Y = 0;
         	for(int i = 0; i<theNodeList.size(); i++)
         	{
+        		if(truckB.getCurrentNode() == theNodeList.get(i).getNodeName())
+        		{
+        			temp2X = theNodeList.get(i).getNodeX();
+        			temp2Y = theNodeList.get(i).getNodeY();
+        		}
         		if(truckB.getDestTruck() == theNodeList.get(i).getNodeName())
         		{
         			tempX = theNodeList.get(i).getNodeX();
         			tempY = theNodeList.get(i).getNodeY();
-        			g.setColor(Color.WHITE);
-        			g.drawLine(truckB.getX(), truckB.getY(), tempX, tempY);
         		}
         	}
+        	g.setColor(Color.WHITE);
+			g.drawLine(temp2X, temp2Y, tempX, tempY);
         }
          
-		for(int i = 0; i<theNodeList.size(); i++) // Draws the nodes 
+        // Draws the nodes
+		for(int i = 0; i<theNodeList.size(); i++)
 		{
 			g.setColor(theNodeList.get(i).getNodeColor());
 			g.fillOval(theNodeList.get(i).getNodeX(), theNodeList.get(i).getNodeY(), 16, 16);
 		}
 		
 		// Draws Truck A
-		g.setColor(Color.BLUE);
-		g.drawRect(truckA.getX(), truckA.getY(), 20, 20);
+		for(int i = 0; i<theNodeList.size(); i++)
+		{
+			if(getTruckADest()==theNodeList.get(i).getNodeName())
+			{
+				g.setColor(Color.BLUE);
+				g.drawRect(theNodeList.get(i).getNodeX(), theNodeList.get(i).getNodeY(), 20, 20);
+			}
+		}
 		
 		// Draws Truck B
-		g.setColor(Color.ORANGE);
-		g.drawRect(truckB.getX(), truckB.getY(), 20, 20);
+		for(int i = 0; i<theNodeList.size(); i++)
+		{
+			if(getTruckBDest()==theNodeList.get(i).getNodeName())
+			{
+				g.setColor(Color.ORANGE);
+				g.drawRect(theNodeList.get(i).getNodeX(), theNodeList.get(i).getNodeY(), 20, 20);
+			}
+		}
 		
 		// Draws any dispatched robots
 		for(int i = 0; i<roboList.size(); i++)
 		{
 			g.setColor(Color.GREEN);
-			g.fillOval(roboList.get(i).getOrderX(), roboList.get(i).getOrderY(), 10, 10); 
+			g.fillRect(roboList.get(i).getOrderX(), roboList.get(i).getOrderY(), 10, 10); 
 		}
 	}
 }
